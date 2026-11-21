@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0d0f17" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Ruang Kita — YNU & CIM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-main: #0d0f17;
+      --bg-card: #161926;
+      --bg-elevated: #1f2436;
+      --accent: #ff5e8e;
+      --accent-soft: rgba(255, 94, 142, 0.14);
+      --text-primary: #f4f5f8;
+      --text-secondary: #98a0b8;
+      --border: rgba(255, 255, 255, 0.08);
+      --bubble-me: linear-gradient(135deg, #ff5e8e 0%, #d946ef 100%);
+      --bubble-partner: #1e2233;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      height: 100dvh;
+      display: flex;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 480px;
+      height: 100dvh;
+      background: var(--bg-main);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+
+    .lock-screen {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, #1f1630 0%, #0d0f17 65%);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+      text-align: center;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .lock-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .lock-badge {
+      background: var(--accent-soft);
+      color: var(--accent);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 14px;
+      border: 1px solid rgba(255, 94, 142, 0.25);
+    }
+
+    .lock-screen h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .lock-screen p {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+
+    .role-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      width: 100%;
+      margin-bottom: 14px;
+    }
+
+    .role-btn {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      color: var(--text-secondary);
+      padding: 12px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .role-btn.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--text-primary);
+    }
+
+    .secret-wrap {
+      position: relative;
+      width: 100%;
+      margin-bottom: 14px;
+    }
+
+    .room-input {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 13px 44px;
+      color: var(--text-primary);
+      font-size: 15px;
+      text-align: center;
+      outline: none;
+    }
+
+    .room-input:focus {
+      border-color: var(--accent);
+    }
+
+    .room-input.error {
+      border-color: #ef4444;
+      animation: shake 0.28s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+
+    .toggle-eye {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: var(--bubble-me);
+      color: white;
+      border: none;
+      padding: 13px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-danger {
+      width: 100%;
+      background: rgba(239, 68, 68, 0.14);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .btn-secondary {
+      width: 100%;
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .header {
+      padding: 14px 16px 10px;
+      background: rgba(13, 15, 23, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      z-index: 10;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .partner-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--bubble-me);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+      position: relative;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #22c55e;
+      border: 2px solid var(--bg-main);
+      position: absolute;
+      bottom: 0;
+      right: 0;
+    }
+
+    .status-dot.offline {
+      background: #f59e0b;
+    }
+
+    .partner-meta h2 {
+      font-size: 15.5px;
+      font-weight: 700;
+    }
+
+    .partner-mood {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .icon-btn.kangen-btn {
+      background: var(--accent-soft);
+      border-color: rgba(255, 94, 142, 0.35);
+      color: var(--accent);
+    }
+
+    .anniv-card {
+      background: linear-gradient(135deg, rgba(255, 94, 142, 0.12) 0%, rgba(139, 92, 246, 0.12) 100%);
+      border: 1px solid rgba(255, 94, 142, 0.22);
+      border-radius: 14px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .anniv-label {
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--accent);
+      font-weight: 700;
+      display: block;
+    }
+
+    .anniv-days {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .anniv-right {
+      text-align: right;
+    }
+
+    .countdown-title {
+      font-size: 10.5px;
+      color: var(--text-secondary);
+    }
+
+    .countdown-timer {
+      font-size: 12.5px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .mood-strip {
+      display: flex;
+      gap: 6px;
+      padding: 8px 16px;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--border);
+      scrollbar-width: none;
+    }
+    .mood-strip::-webkit-scrollbar { display: none; }
+
+    .mood-chip {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .mood-chip.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .chat-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .msg-row {
+      display: flex;
+      flex-direction: column;
+      max-width: 80%;
+      transition: transform 0.15s ease;
+    }
+
+    .msg-row.pressing {
+      transform: scale(0.96);
+    }
+
+    .msg-row.me {
+      align-self: flex-end;
+      align-items: flex-end;
+    }
+
+    .msg-row.partner {
+      align-self: flex-start;
+      align-items: flex-start;
+    }
+
+    .bubble {
+      padding: 10px 14px;
+      border-radius: 18px;
+      font-size: 14px;
+      line-height: 1.45;
+      word-wrap: break-word;
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: pointer;
+    }
+
+    .msg-row.me .bubble {
+      background: var(--bubble-me);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .msg-row.partner .bubble {
+      background: var(--bubble-partner);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+    }
+
+    .bubble.pulse-card {
+      background: rgba(255, 94, 142, 0.16);
+      border: 1px solid var(--accent);
+      color: #ffd1df;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .msg-meta {
+      font-size: 10.5px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      padding: 0 4px;
+    }
+
+    .input-bar {
+      padding: 10px 12px 14px;
+      background: var(--bg-main);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chat-input {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 11px 16px;
+      color: var(--text-primary);
+      font-size: 14px;
+      outline: none;
+    }
+
+    .chat-input:focus {
+      border-color: var(--accent);
+    }
+
+    .chat-input:disabled, .send-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .send-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--bubble-me);
+      border: none;
+      color: white;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .modal {
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 10, 16, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 90;
+      display: none;
+      align-items: flex-end;
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    .modal-sheet {
+      width: 100%;
+      background: var(--bg-card);
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      padding: 20px;
+      border-top: 1px solid var(--border);
+      animation: slideUp 0.2s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .preview-msg {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 12px;
+      color: var(--text-primary);
+      font-size: 13.5px;
+      outline: none;
+    }
+
+    .attach-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .attach-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .bubble-img {
+      max-width: 100%;
+      border-radius: 12px;
+      display: block;
+      margin-bottom: 6px;
+      max-height: 240px;
+      object-fit: cover;
+    }
+
+    .saved-badge {
+      font-size: 10px;
+      color: var(--accent);
+      margin-left: 4px;
+    }
+
+    .toast {
+      position: absolute;
+      top: 76px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: #23283d;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      border: 1px solid var(--accent);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+      z-index: 120;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <div id="toast" class="toast">Tersimpan</div>
+
+    <div id="lockScreen" class="lock-screen">
+      <span class="lock-badge">🔒 ROOM TERKUNCI</span>
+      <h1>YNU & CIM</h1>
+      <p>Kolom kode dikosongkan. Isi <strong>Kode Secret</strong> terlebih dahulu untuk membuka room chat.</p>
+
+      <div class="role-selector">
+        <button type="button" class="role-btn active" data-role="yefta" onclick="selectRole('yefta')">Aku YNU</button>
+        <button type="button" class="role-btn" data-role="cezia" onclick="selectRole('cezia')">Aku CIM</button>
+      </div>
+
+      <div class="secret-wrap">
+        <input type="password" id="roomSecretInput" class="room-input" value="" placeholder="Password akun" autocomplete="current-password" onkeydown="if(event.key==='Enter') enterRoom()" />
+        <button type="button" class="toggle-eye" onclick="toggleSecretVisibility()" title="Tampilkan/Sembunyikan">👁️</button>
+      </div>
+      <button type="button" class="btn-primary" onclick="enterRoom()">Masuk ke Ruang Kita</button>
+    </div>
+
+    <div class="header">
+      <div class="header-top">
+        <div class="partner-info">
+          <div class="avatar" id="partnerAvatar">
+            C
+            <span class="status-dot offline" id="netDot"></span>
+          </div>
+          <div class="partner-meta">
+            <h2 id="partnerNameDisplay">CIM ❤️</h2>
+            <div class="partner-mood" id="partnerMoodDisplay">Status: Room Terkunci 🔒</div>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button type="button" class="icon-btn kangen-btn" title="Kirim Sinyal Kangen" onclick="sendKangenPulse()">💗</button>
+          <button type="button" class="icon-btn" title="Pengaturan" onclick="openSettings()">⚙️</button>
+        </div>
+      </div>
+
+      <div class="anniv-card" onclick="openSettings()">
+        <div>
+          <span class="anniv-label">Sejak <span id="annivDateLabel">01 Jan 2026</span></span>
+          <span class="anniv-days" id="daysTogetherDisplay">0 Hari Bersama</span>
+        </div>
+        <div class="anniv-right">
+          <div class="countdown-title" id="nextMilestoneLabel">Menuju Anniversary</div>
+          <div class="countdown-timer" id="countdownDisplay">00h 00j 00m 00d</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mood-strip">
+      <button class="mood-chip active" onclick="setMyMood(this, 'Lagi kangen kamu ✨')">🥺 Lagi kangen</button>
+      <button class="mood-chip" onclick="setMyMood(this, 'Baru bangun tidur 😴')">😴 Baru bangun</button>
+      <button class="mood-chip" onclick="setMyMood(this, 'Lagi sibuk bentar 💻')">💻 Lagi sibuk</button>
+      <button class="mood-chip" onclick="setMyMood(this, 'Butuh ditemenin 🤍')">🤍 Butuh ditemenin</button>
+      <button class="mood-chip" onclick="setMyMood(this, 'Lagi di jalan 🛵')">🛵 Di jalan</button>
+    </div>
+
+    <div class="chat-area" id="chatArea"></div>
+
+    <form class="input-bar" onsubmit="handleSend(event)">
+      <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhotoSelected(event)" />
+      <button type="button" id="photoBtn" class="attach-btn" title="Kirim & Simpan Foto" onclick="triggerPhotoPick()" disabled>📷</button>
+      <input type="text" id="msgInput" class="chat-input" placeholder="Login dulu untuk mulai chat..." autocomplete="off" disabled />
+      <button type="submit" id="sendBtn" class="send-btn" disabled>➤</button>
+    </form>
+
+    <!-- Menu Tekan Lama Hapus Pesan -->
+    <div id="deleteActionModal" class="modal" onclick="if(event.target===this) closeDeleteMenu()">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <h3>Hapus Pesan</h3>
+          <button type="button" class="icon-btn" onclick="closeDeleteMenu()">✕</button>
+        </div>
+
+        <div id="deleteMsgPreview" class="preview-msg">Isi pesan...</div>
+
+        <button type="button" id="btnDeleteForAll" class="btn-danger" onclick="confirmDeleteForAll()">Hapus untuk Semua</button>
+        <button type="button" id="btnDeleteForMe" class="btn-secondary" onclick="confirmDeleteForMe()">Hapus untuk Saya</button>
+        <button type="button" class="btn-secondary" style="opacity:0.7" onclick="closeDeleteMenu()">Batal</button>
+      </div>
+    </div>
+
+    <!-- Pengaturan -->
+    <div id="settingsModal" class="modal" onclick="if(event.target===this) closeSettings()">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <h3>Pengaturan Ruang & Hari Jadian</h3>
+          <button type="button" class="icon-btn" onclick="closeSettings()">✕</button>
+        </div>
+
+        <div class="form-group">
+          <label>Tanggal Jadian Kalian (Otomatis sinkron ke HP pasangan)</label>
+          <input type="date" id="annivInput" class="form-control" />
+        </div>
+
+        <button type="button" class="btn-primary" onclick="saveSettings()">Simpan Tanggal</button>
+        <button type="button" class="btn-secondary" onclick="exportPermanentBackup()">💾 Simpan Cadangan Permanen (.json)</button>
+        <button type="button" class="btn-secondary" onclick="lockRoom()">🔒 Kunci Room & Kosongkan Kode</button>
+        <button type="button" class="btn-danger" onclick="clearAllMessages()">Hapus Semua Pesan di Layar Saya</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./config.js"></script>
+  <script>
+    const supabaseClient = window.supabase.createClient(
+      RUANGKITA_CONFIG.supabaseUrl,
+      RUANGKITA_CONFIG.supabaseAnonKey
+    );
+    const ROOM_ID = "ruang-kita-ynu-cim";
+
+    // Pesan utama disimpan di Supabase. Map ini hanya cache tampilan sesi.
+    function getVaultKey() { return `couple_permanent_vault_${state.role}`; }
+    function loadVaultMessages() { return Object.fromEntries([...messageDataMap.entries()]); }
+    function saveVaultMessages(mapObj) {}
+    function upsertVaultMessage(id, msg) { if (id && msg) messageDataMap.set(id, msg); }
+    function deleteFromVault(id) { messageDataMap.delete(id); }
+    function clearVaultAll() {}
+    function restoreFromVault() {}
+
+    function exportPermanentBackup() {
+      if (!state.isUnlocked) {
+        showToast('🔒 Buka room dulu untuk menyimpan cadangan!');
+        return;
+      }
+      const payload = {
+        app: 'Ruang Kita YNU & CIM',
+        exportedAt: new Date().toISOString(),
+        annivDate: state.annivDate,
+        messages: [...messageDataMap.values()]
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `arsip-permanen-ynu-cim-${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast('💾 Arsip permanen berhasil diunduh!');
+    }
+
+    // --- SUPABASE DATABASE + REALTIME ---
+    let realtimeChannel = null;
+    const processedEventIds = new Set();
+
+    function dbRowToMessage(row) {
+      return {
+        id: row.id, sender: row.sender_role, text: row.message_text || '',
+        image: row.image_data || '', type: row.message_type || 'text',
+        deleted: !!row.deleted, savedAt: Number(row.saved_at || Date.now()),
+        time: row.time_label || ''
+      };
+    }
+
+    async function publishRealtimeEvent(packet) {
+      if (!state.isUnlocked) return;
+      try {
+        if (packet.kind === 'chat') {
+          const msg = packet.payload;
+          const { error } = await supabaseClient.from('messages').insert({
+            id: msg.id, room_id: ROOM_ID, sender_role: state.role,
+            message_text: msg.text || '', image_data: msg.image || '',
+            message_type: msg.type || 'text', saved_at: msg.savedAt || Date.now(),
+            time_label: msg.time || '', deleted: false
+          });
+          if (error) throw error;
+        } else if (packet.kind === 'delete_all') {
+          const { error } = await supabaseClient.from('messages')
+            .update({ deleted: true }).eq('id', packet.targetId)
+            .eq('room_id', ROOM_ID).eq('sender_role', state.role);
+          if (error) throw error;
+        } else if (packet.kind === 'mood') {
+          const field = state.role === 'yefta' ? 'mood_yefta' : 'mood_cezia';
+          const { error } = await supabaseClient.from('room_state')
+            .update({ [field]: packet.text, updated_at: new Date().toISOString() })
+            .eq('room_id', ROOM_ID);
+          if (error) throw error;
+        } else if (packet.kind === 'anniv') {
+          const { error } = await supabaseClient.from('room_state')
+            .update({ anniversary_date: packet.annivDate, updated_at: new Date().toISOString() })
+            .eq('room_id', ROOM_ID);
+          if (error) throw error;
+        }
+        updateConnectionBadge(true);
+      } catch (err) {
+        console.error(err);
+        updateConnectionBadge(false);
+        showToast('⚠️ Gagal menyimpan. Periksa koneksi/backend.');
+      }
+    }
+
+    async function fetchMissedMessages() {
+      if (!state.isUnlocked) return;
+      try {
+        const { data, error } = await supabaseClient.from('messages')
+          .select('*').eq('room_id', ROOM_ID).eq('deleted', false)
+          .order('saved_at', { ascending: true });
+        if (error) throw error;
+        (data || []).forEach(row => {
+          const msg = dbRowToMessage(row);
+          if (hiddenLocalIds.has(msg.id)) return;
+          messageDataMap.set(msg.id, msg);
+          renderOrUpdateBubble(msg.id, msg);
+        });
+        const { data: rs, error: stateError } = await supabaseClient.from('room_state')
+          .select('*').eq('room_id', ROOM_ID).maybeSingle();
+        if (!stateError && rs) {
+          if (rs.anniversary_date) {
+            state.annivDate = rs.anniversary_date;
+            updateAnniversaryCountdown();
+          }
+          const mood = state.role === 'yefta' ? rs.mood_cezia : rs.mood_yefta;
+          if (mood) document.getElementById('partnerMoodDisplay').textContent = `Status: ${mood}`;
+        }
+        updateConnectionBadge(true);
+      } catch (err) {
+        console.error(err);
+        updateConnectionBadge(false);
+        showToast('⚠️ Belum bisa memuat pesan dari server.');
+      }
+    }
+
+    function connectRealtimeChannel() {
+      disconnectRealtimeChannel();
+      if (!state.isUnlocked) return;
+      realtimeChannel = supabaseClient.channel(`room-${ROOM_ID}`)
+        .on('postgres_changes', {
+          event: '*', schema: 'public', table: 'messages',
+          filter: `room_id=eq.${ROOM_ID}`
+        }, payload => {
+          const row = payload.new || payload.old;
+          if (!row) return;
+          if (payload.eventType === 'DELETE' || row.deleted) {
+            removeBubbleFromDOM(row.id);
+            return;
+          }
+          const msg = dbRowToMessage(row);
+          if (hiddenLocalIds.has(msg.id)) return;
+          messageDataMap.set(msg.id, msg);
+          renderOrUpdateBubble(msg.id, msg);
+        })
+        .on('postgres_changes', {
+          event: 'UPDATE', schema: 'public', table: 'room_state',
+          filter: `room_id=eq.${ROOM_ID}`
+        }, payload => {
+          const row = payload.new || {};
+          if (row.anniversary_date) {
+            state.annivDate = row.anniversary_date;
+            updateAnniversaryCountdown();
+          }
+          const mood = state.role === 'yefta' ? row.mood_cezia : row.mood_yefta;
+          if (mood) document.getElementById('partnerMoodDisplay').textContent = `Status: ${mood}`;
+        })
+        .subscribe(status => updateConnectionBadge(status === 'SUBSCRIBED'));
+      fetchMissedMessages();
+    }
+
+    function disconnectRealtimeChannel() {
+      if (realtimeChannel) {
+        supabaseClient.removeChannel(realtimeChannel);
+        realtimeChannel = null;
+      }
+    }
+
+    function updateConnectionBadge(online) {
+      const dot = document.getElementById('netDot');
+      if (dot) {
+        if (state.isUnlocked && online && navigator.onLine) dot.classList.remove('offline');
+        else dot.classList.add('offline');
+      }
+    }
+
+    let state = {
+      role: localStorage.getItem('couple_role') || 'yefta',
+      roomCode: '',
+      annivDate: localStorage.getItem('couple_anniv') || '2026-01-01',
+      isUnlocked: false
+    };
+
+    const messageElements = new Map();
+    const messageDataMap = new Map();
+    let hiddenLocalIds = new Set();
+
+    function setChatInputEnabled(enabled) {
+      const inp = document.getElementById('msgInput');
+      const btn = document.getElementById('sendBtn');
+      const pBtn = document.getElementById('photoBtn');
+      inp.disabled = !enabled;
+      btn.disabled = !enabled;
+      if (pBtn) pBtn.disabled = !enabled;
+      if (!enabled) {
+        inp.placeholder = 'Login dulu untuk mulai chat...';
+      } else {
+        const partnerName = state.role === 'yefta' ? 'CIM' : 'YNU';
+        inp.placeholder = `Tulis pesan untuk ${partnerName}...`;
+      }
+    }
+
+    function resetSecretField() {
+      const inp = document.getElementById('roomSecretInput');
+      inp.value = '';
+      inp.type = 'password';
+      inp.classList.remove('error');
+    }
+
+    function getHiddenStorageKey() {
+      return `couple_hidden_${state.roomCode}_${state.role}`;
+    }
+
+    function loadHiddenIds() {
+      try {
+        hiddenLocalIds = new Set(JSON.parse(localStorage.getItem(getHiddenStorageKey()) || '[]'));
+      } catch (e) {
+        hiddenLocalIds = new Set();
+      }
+    }
+
+    function saveHiddenIds() {
+      localStorage.setItem(getHiddenStorageKey(), JSON.stringify([...hiddenLocalIds]));
+    }
+
+    let selectedMsgId = null;
+    let pressTimer = null;
+
+    selectRole(state.role);
+    resetSecretField();
+    setChatInputEnabled(false);
+    updateAnniversaryCountdown();
+    setInterval(updateAnniversaryCountdown, 1000);
+
+    function selectRole(role) {
+      state.role = role;
+      document.querySelectorAll('.role-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.role === role);
+      });
+    }
+
+    function toggleSecretVisibility() {
+      const inp = document.getElementById('roomSecretInput');
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+    }
+
+    async function enterRoom() {
+      const inp = document.getElementById('roomSecretInput');
+      const password = inp.value;
+      const email = RUANGKITA_CONFIG.accounts[state.role];
+      if (!email || email.includes('GANTI_')) {
+        showToast('⚙️ Isi email YNU/CIM pada config.js terlebih dahulu.');
+        return;
+      }
+      if (!password) {
+        showToast('Masukkan password akun.');
+        return;
+      }
+      try {
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        state.roomCode = ROOM_ID;
+        state.isUnlocked = true;
+        localStorage.setItem('couple_role', state.role);
+        document.getElementById('chatArea').innerHTML = '';
+        messageElements.clear();
+        messageDataMap.clear();
+        processedEventIds.clear();
+        setChatInputEnabled(true);
+        document.getElementById('lockScreen').classList.add('hidden');
+        startCoupleSpace();
+        showToast('🔓 Berhasil masuk. Chat tersinkron ke cloud.');
+      } catch (err) {
+        console.error(err);
+        state.isUnlocked = false;
+        state.roomCode = '';
+        setChatInputEnabled(false);
+        inp.value = '';
+        inp.classList.add('error');
+        showToast('❌ Login gagal. Periksa email dan password akun.');
+      }
+    }
+
+    function lockRoom() {
+      closeSettings();
+      state.isUnlocked = false;
+      state.roomCode = '';
+      disconnectRealtimeChannel();
+      supabaseClient.auth.signOut();
+      setChatInputEnabled(false);
+      document.getElementById('chatArea').innerHTML = '';
+      messageElements.clear();
+      messageDataMap.clear();
+      document.getElementById('partnerMoodDisplay').textContent = 'Status: Room Terkunci 🔒';
+      resetSecretField();
+      document.getElementById('lockScreen').classList.remove('hidden');
+      showToast('🔒 Room dikunci & kolom kode dikosongkan');
+    }
+
+    function startCoupleSpace() {
+      if (!state.isUnlocked || !state.roomCode) return;
+
+      loadHiddenIds();
+      const partnerName = state.role === 'yefta' ? 'CIM ❤️' : 'YNU ❤️';
+      document.getElementById('partnerNameDisplay').textContent = partnerName;
+      document.getElementById('partnerAvatar').childNodes[0].textContent = partnerName.charAt(0);
+      document.getElementById('partnerMoodDisplay').textContent = 'Status: Terhubung Realtime ✨';
+
+      window.addEventListener('online', () => {
+        updateConnectionBadge(true);
+        fetchMissedMessages();
+      });
+      window.addEventListener('offline', () => updateConnectionBadge(false));
+
+      restoreFromVault();
+      connectRealtimeChannel();
+    }
+
+    function removeBubbleFromDOM(id) {
+      const el = messageElements.get(id);
+      if (el) {
+        el.remove();
+        messageElements.delete(id);
+      }
+      messageDataMap.delete(id);
+    }
+
+    function attachLongPressHandlers(row, id) {
+      let pressStartX = 0;
+      let pressStartY = 0;
+
+      const startPress = (clientX, clientY) => {
+        pressStartX = clientX || 0;
+        pressStartY = clientY || 0;
+        row.classList.add('pressing');
+        if (pressTimer) clearTimeout(pressTimer);
+        pressTimer = setTimeout(() => {
+          row.classList.remove('pressing');
+          if (navigator.vibrate) navigator.vibrate(45);
+          openDeleteMenu(id);
+        }, 450);
+      };
+
+      const movePress = (clientX, clientY) => {
+        if (!pressTimer) return;
+        const dx = Math.abs((clientX || 0) - pressStartX);
+        const dy = Math.abs((clientY || 0) - pressStartY);
+        if (dx > 14 || dy > 14) {
+          cancelPress();
+        }
+      };
+
+      const cancelPress = () => {
+        row.classList.remove('pressing');
+        if (pressTimer) {
+          clearTimeout(pressTimer);
+          pressTimer = null;
+        }
+      };
+
+      row.addEventListener('touchstart', (e) => {
+        const t = e.touches && e.touches[0];
+        startPress(t ? t.clientX : 0, t ? t.clientY : 0);
+      }, { passive: true });
+
+      row.addEventListener('touchmove', (e) => {
+        const t = e.touches && e.touches[0];
+        movePress(t ? t.clientX : 0, t ? t.clientY : 0);
+      }, { passive: true });
+
+      row.addEventListener('touchend', cancelPress);
+      row.addEventListener('touchcancel', cancelPress);
+
+      row.addEventListener('mousedown', (e) => {
+        if (e.button === 0) startPress();
+      });
+      row.addEventListener('mouseup', cancelPress);
+      row.addEventListener('mouseleave', cancelPress);
+      row.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        openDeleteMenu(id);
+      });
+    }
+
+    function renderOrUpdateBubble(id, msg) {
+      if (!state.isUnlocked) return;
+      if (hiddenLocalIds.has(id) || msg.deleted === true || (!msg.text && !msg.image)) {
+        removeBubbleFromDOM(id);
+        return;
+      }
+
+      if (messageElements.has(id)) {
+        return;
+      }
+
+      const area = document.getElementById('chatArea');
+      const isMe = msg.sender === state.role;
+
+      const row = document.createElement('div');
+      row.className = `msg-row ${isMe ? 'me' : 'partner'}`;
+
+      const bubble = document.createElement('div');
+      bubble.className = `bubble ${msg.type === 'pulse' ? 'pulse-card' : ''}`;
+
+      if (msg.image) {
+        const img = document.createElement('img');
+        img.src = msg.image;
+        img.className = 'bubble-img';
+        img.alt = 'Foto tersimpan';
+        bubble.appendChild(img);
+      }
+
+      if (msg.text) {
+        const span = document.createElement('div');
+        span.textContent = msg.text;
+        bubble.appendChild(span);
+      }
+
+      const meta = document.createElement('div');
+      meta.className = 'msg-meta';
+      const senderTag = isMe ? 'Kamu' : (msg.sender === 'yefta' ? 'YNU' : 'CIM');
+      meta.innerHTML = `${senderTag} • ${msg.time || ''} <span class="saved-badge">• Tersimpan</span>`;
+
+      row.appendChild(bubble);
+      row.appendChild(meta);
+
+      attachLongPressHandlers(row, id);
+
+      messageElements.set(id, row);
+      area.appendChild(row);
+      area.scrollTop = area.scrollHeight;
+
+      if (!isMe && msg.type === 'pulse' && navigator.vibrate) {
+        navigator.vibrate([150, 80, 150]);
+      }
+    }
+
+    function openDeleteMenu(id) {
+      if (!state.isUnlocked) return;
+      const msg = messageDataMap.get(id);
+      if (!msg) return;
+
+      selectedMsgId = id;
+      const isMyMessage = msg.sender === state.role;
+
+      document.getElementById('deleteMsgPreview').textContent = `"${msg.text || 'Foto'}"`;
+      document.getElementById('btnDeleteForMe').style.display = 'block';
+      document.getElementById('btnDeleteForAll').style.display = isMyMessage ? 'block' : 'none';
+
+      document.getElementById('deleteActionModal').classList.add('open');
+    }
+
+    function closeDeleteMenu() {
+      selectedMsgId = null;
+      document.getElementById('deleteActionModal').classList.remove('open');
+    }
+
+    function confirmDeleteForMe() {
+      if (!state.isUnlocked || !selectedMsgId) return;
+      const targetId = selectedMsgId;
+
+      hiddenLocalIds.add(targetId);
+      saveHiddenIds();
+      deleteFromVault(targetId);
+      removeBubbleFromDOM(targetId);
+      closeDeleteMenu();
+      showToast('Pesan dihapus untuk saya saja');
+    }
+
+    function confirmDeleteForAll() {
+      if (!state.isUnlocked || !selectedMsgId) return;
+      const msg = messageDataMap.get(selectedMsgId);
+      if (!msg || msg.sender !== state.role) return;
+      const targetId = selectedMsgId;
+
+      hiddenLocalIds.add(targetId);
+      saveHiddenIds();
+      deleteFromVault(targetId);
+      removeBubbleFromDOM(targetId);
+
+      publishRealtimeEvent({
+        eventId: `del-${targetId}-${Date.now()}`,
+        kind: 'delete_all',
+        targetId: targetId
+      });
+
+      closeDeleteMenu();
+      showToast('Pesan dihapus untuk semua');
+    }
+
+    function clearAllMessages() {
+      if (!state.isUnlocked) return;
+      messageElements.forEach((_, id) => {
+        hiddenLocalIds.add(id);
+      });
+      saveHiddenIds();
+      clearVaultAll();
+      document.getElementById('chatArea').innerHTML = '';
+      messageElements.clear();
+      messageDataMap.clear();
+      closeSettings();
+      showToast('Semua pesan dibersihkan dari layarmu');
+    }
+
+    function handleSend(e) {
+      e.preventDefault();
+      if (!state.isUnlocked) {
+        showToast('🔒 Login dulu untuk mulai chat!');
+        return;
+      }
+      const input = document.getElementById('msgInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const msgId = `${Date.now()}-${state.role}-${Math.random().toString(36).slice(2, 6)}`;
+      const payload = {
+        id: msgId,
+        sender: state.role,
+        text: text,
+        image: '',
+        type: 'text',
+        deleted: false,
+        savedAt: Date.now(),
+        time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+      };
+
+      processedEventIds.add(`evt-${msgId}`);
+      upsertVaultMessage(msgId, payload);
+      messageDataMap.set(msgId, payload);
+      renderOrUpdateBubble(msgId, payload);
+
+      publishRealtimeEvent({
+        eventId: `evt-${msgId}`,
+        kind: 'chat',
+        payload: payload
+      });
+
+      input.value = '';
+    }
+
+    function sendKangenPulse() {
+      if (!state.isUnlocked) {
+        showToast('🔒 Login dulu untuk membuka chat!');
+        return;
+      }
+      if (navigator.vibrate) navigator.vibrate([100, 60, 150]);
+      const senderLabel = state.role === 'yefta' ? 'YNU' : 'CIM';
+      const msgId = `${Date.now()}-${state.role}-${Math.random().toString(36).slice(2, 6)}`;
+
+      const payload = {
+        id: msgId,
+        sender: state.role,
+        text: `💗 ${senderLabel} mengirim sinyal kangen!`,
+        image: '',
+        type: 'pulse',
+        deleted: false,
+        savedAt: Date.now(),
+        time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+      };
+
+      processedEventIds.add(`evt-${msgId}`);
+      upsertVaultMessage(msgId, payload);
+      messageDataMap.set(msgId, payload);
+      renderOrUpdateBubble(msgId, payload);
+
+      publishRealtimeEvent({
+        eventId: `evt-${msgId}`,
+        kind: 'chat',
+        payload: payload
+      });
+
+      showToast('Sinyal kangen terkirim 💗');
+    }
+
+    function setMyMood(el, moodText) {
+      if (!state.isUnlocked) {
+        showToast('🔒 Login dulu untuk mengubah status!');
+        return;
+      }
+      document.querySelectorAll('.mood-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      showToast(`Statusmu: ${moodText}`);
+
+      publishRealtimeEvent({
+        eventId: `mood-${state.role}-${Date.now()}`,
+        kind: 'mood',
+        role: state.role,
+        text: moodText
+      });
+    }
+
+    function updateAnniversaryCountdown() {
+      const start = new Date(state.annivDate + 'T00:00:00');
+      const now = new Date();
+
+      document.getElementById('annivDateLabel').textContent = start.toLocaleDateString('id-ID', {
+        day: '2-digit', month: 'short', year: 'numeric'
+      });
+
+      const totalDays = Math.max(0, Math.floor((now - start) / (1000 * 60 * 60 * 24)));
+      document.getElementById('daysTogetherDisplay').textContent = `${totalDays} Hari Bersama`;
+
+      let nextAnniv = new Date(now.getFullYear(), start.getMonth(), start.getDate(), 0, 0, 0);
+      if (nextAnniv <= now) {
+        nextAnniv = new Date(now.getFullYear() + 1, start.getMonth(), start.getDate(), 0, 0, 0);
+      }
+
+      const yearCount = nextAnniv.getFullYear() - start.getFullYear();
+      document.getElementById('nextMilestoneLabel').textContent =
+        yearCount > 0 ? `Menuju Anniv ke-${yearCount}` : 'Menuju Hari Jadian';
+
+      const remain = nextAnniv - now;
+      const d = Math.floor(remain / (1000 * 60 * 60 * 24));
+      const h = Math.floor((remain / (1000 * 60 * 60)) % 24);
+      const m = Math.floor((remain / (1000 * 60)) % 60);
+      const s = Math.floor((remain / 1000) % 60);
+
+      document.getElementById('countdownDisplay').textContent =
+        `${d}h ${String(h).padStart(2, '0')}j ${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}d`;
+    }
+
+    function openSettings() {
+      if (!state.isUnlocked) {
+        showToast('🔒 Login dulu untuk membuka chat!');
+        return;
+      }
+      document.getElementById('annivInput').value = state.annivDate;
+      document.getElementById('settingsModal').classList.add('open');
+    }
+
+    function closeSettings() {
+      document.getElementById('settingsModal').classList.remove('open');
+    }
+
+    function saveSettings() {
+      if (!state.isUnlocked) return;
+      const annivVal = document.getElementById('annivInput').value;
+      if (annivVal) {
+        state.annivDate = annivVal;
+        localStorage.setItem('couple_anniv', annivVal);
+        updateAnniversaryCountdown();
+        publishRealtimeEvent({
+          eventId: `anniv-${Date.now()}`,
+          kind: 'anniv',
+          annivDate: annivVal
+        });
+      }
+      closeSettings();
+      showToast('Tanggal jadian diperbarui & disinkronkan!');
+    }
+
+    function triggerPhotoPick() {
+      if (!state.isUnlocked) {
+        showToast('🔒 Buka room dulu untuk kirim foto!');
+        return;
+      }
+      document.getElementById('photoInput').click();
+    }
+
+    function handlePhotoSelected(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file || !state.isUnlocked) return;
+      if (file.size > 8 * 1024 * 1024) { showToast('Ukuran foto maksimal 8 MB.'); e.target.value=''; return; }
+
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const maxDim = 640;
+          let w = img.width;
+          let h = img.height;
+          if (w > h && w > maxDim) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          } else if (h > maxDim) {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.65);
+
+          const caption = document.getElementById('msgInput').value.trim();
+          const msgId = `${Date.now()}-${state.role}-${Math.random().toString(36).slice(2, 6)}`;
+          const payload = {
+            id: msgId,
+            sender: state.role,
+            text: caption || '📷 Foto kenangan',
+            image: compressedDataUrl,
+            type: 'photo',
+            deleted: false,
+            savedAt: Date.now(),
+            time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+          };
+
+          processedEventIds.add(`evt-${msgId}`);
+          upsertVaultMessage(msgId, payload);
+          messageDataMap.set(msgId, payload);
+          renderOrUpdateBubble(msgId, payload);
+
+          publishRealtimeEvent({
+            eventId: `evt-${msgId}`,
+            kind: 'chat',
+            payload: payload
+          });
+
+          document.getElementById('msgInput').value = '';
+          e.target.value = '';
+          showToast('📷 Foto terkirim & tersimpan permanen');
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function showToast(text) {
+      const t = document.getElementById('toast');
+      t.textContent = text;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
+  </script>
+</body>
+</html>
